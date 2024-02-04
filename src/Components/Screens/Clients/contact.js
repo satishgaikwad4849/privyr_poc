@@ -1,11 +1,13 @@
 // Access Device’s Contact List in React Native App
 // https://aboutreact.com/access-contact-list-react-native/
 
-import React, {memo} from 'react';
-import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
-
+import React, {memo, useEffect} from 'react';
+import {View, TouchableOpacity, Text, StyleSheet,Button} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 // import PropTypes from 'prop-types';
 import Avatar from './avatar';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import axios from 'axios';
 
 const getAvatarInitials = (textString) => {
   if (!textString) return '';
@@ -21,11 +23,99 @@ const ContactListItem = (props) => {
   const shouldComponentUpdate = () => {
     return false;
   };
-  const {item, onPress} = props;
-  console.log(item,"item contatcs",item?.givenName)
+  const navigation = useNavigation();
+  const { item, onPress, onAddContact,isClient=false } = props;
+  
+  // const postClients = (newClient) => {
+  //   fetch('http://192.168.1.109:3001/api/clients', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({ clients: [newClient] }), // Send the new contact in an array
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       console.log(data, "clients data res");
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error while posting contacts:', error);
+  //     });
+  // };
+  const postClients = async (newClient) => {
+    try {
+      console.log('Posting client:', newClient);
+      const response = await axios.post('http://192.168.1.109:3001/api/clients', {
+        clients: [newClient],
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      const data = response.data;
+      if(data.status === "success"){
+          onAddContact();
+        console.log(data, 'clients data res from contact');
+      }
+ 
+    } catch (error) {
+      console.error('Error while posting contacts:', error);
+    }
+  };
+  
+  
+
+  const showClientDetails=()=>{
+    if (isClient) {
+      navigation.navigate('StackClientDetails');
+    } else {
+      onPress(item); // Call onPress only if isClient is false
+    }
+  }
+  const handleAddContact = (item_,item) => {
+    // Call the onAddContact function with the contact item
+    console.log('client itemmm',item_,"item_----",item)
+    // onAddContact(item);
+    postClients(item);
+    // onPress(item_)
+  };
+ 
+  const handleEditContact = (item_,item) => {
+    console.log("Edit contact:", item);
+    // For API request, you can use the following code
+    axios.put(`http://192.168.1.109:3001/api/clients/${item.recordID}`, { client: item })
+      .then((response) => {
+        console.log(response.data,"edit api");
+        // Handle success
+        navigation.navigate('StackClientEdit', { client: item });
+      })
+      .catch((error) => {
+        console.error('Error while editing contact:', error);
+        // Handle error
+      });
+  };
+
+  const handleDeleteContact = (item_,item) => {
+    console.log("Delete contact:", item);
+    // For API request, you can use the following code
+    axios.delete(`http://192.168.1.109:3001/api/clients/${item.recordID}`)
+      .then((response) => {
+        if(response.data.status === "success"){
+          onAddContact();
+        }
+        // Handle success
+      })
+      .catch((error) => {
+        console.error('Error while deleting contact:', error);
+        // Handle error
+      });
+  };
+
+  // console.log("item contatcs",props,"props")
   return (
     <View>
-      <TouchableOpacity onPress={() => onPress(item)}>
+      <TouchableOpacity onPress={showClientDetails}>
         <View style={styles.itemContainer}>
           <View style={styles.leftElementContainer}>
             <Avatar
@@ -50,6 +140,32 @@ const ContactListItem = (props) => {
                 style={
                   styles.titleStyle
                 }>{`${item?.phoneNumbers[0]?.number}`}</Text>
+            </View>
+            <View style={styles.buttonContainer}>
+              {!isClient ? (
+                <Icon
+                  name="plus"
+                  size={20}
+                  color="#486e75"
+                  onPress={(item_)=>{handleAddContact(item_,item)}}
+                />
+              ) : (
+                <View style={{ flexDirection: 'row' }}>
+                  <Icon
+                    name="edit" // Use the appropriate icon for edit
+                    size={20}
+                    color="#486e75"
+                    onPress={(item_) => handleEditContact(item_,item)}
+                    style={{ marginRight: 10 }}
+                  />
+                  <Icon
+                    name="trash" // Use the appropriate icon for delete
+                    size={20}
+                    color="#486e75"
+                    onPress={(item_) => handleDeleteContact(item_,item)}
+                  />
+                </View>
+              )}
             </View>
           </View>
         </View>
@@ -85,67 +201,11 @@ const styles = StyleSheet.create({
   titleStyle: {
     fontSize: 16,
   },
+  buttonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingRight: 18,
+  },
 });
 
 export default ContactListItem;
-
-// ContactListItem.propTypes = {
-//   item: PropTypes.object,
-//   onPress: PropTypes.func,
-// };
-// import React from 'react';
-// import {View, Text, StyleSheet} from 'react-native';
-// const Contact = ({contact}) => {
-//   return (
-//     <View style={styles.contactCon}>
-//       <View style={styles.imgCon}>
-//         <View style={styles.placeholder}>
-//           <Text style={styles.txt}>{contact?.givenName[0]}</Text>
-//         </View>
-//       </View>
-//       <View style={styles.contactDat}>
-//         <Text style={styles.name}>
-//           {contact?.givenName} {contact?.middleName && contact.middleName + ' '}
-//           {contact?.familyName}
-//         </Text>
-//         <Text style={styles.phoneNumber}>
-//           {contact?.phoneNumbers[0]?.number}
-//         </Text>
-//       </View>
-//     </View>
-//   );
-// };
-// const styles = StyleSheet.create({
-//   contactCon: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     padding: 5,
-//     borderBottomWidth: 0.5,
-//     borderBottomColor: '#d9d9d9',
-//   },
-//   imgCon: {},
-//   placeholder: {
-//     width: 55,
-//     height: 55,
-//     borderRadius: 30,
-//     overflow: 'hidden',
-//     backgroundColor: '#d9d9d9',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   contactDat: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     paddingLeft: 5,
-//   },
-//   txt: {
-//     fontSize: 18,
-//   },
-//   name: {
-//     fontSize: 16,
-//   },
-//   phoneNumber: {
-//     color: '#888',
-//   },
-// });
-// export default Contact;

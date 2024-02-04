@@ -1,170 +1,236 @@
 // ClientsComponent.js
-import React,{useState,useEffect} from 'react';
-import { Searchbar } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { Searchbar,Modal, Portal, Text, Button, PaperProvider } from 'react-native-paper';
 import MaterialTabs from 'react-native-material-tabs';
 import ContactListItem from './contact';
 import {
   PermissionsAndroid,
   Platform,
-  SafeAreaView,
   StyleSheet,
-  Text,
   View,
   FlatList,
-  TextInput,
-  Button,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
-
+import axios from 'axios';
 import Contacts from 'react-native-contacts';
+
 const ClientsComponent = () => {
-  const tabs = ['All Clients', 'Team', 'Groups'];
+  const tabs = ['All Contacts', 'All Clients', 'Team', 'Groups'];
   const [index, setIndex] = React.useState(0);
-  const [showContacts, setShowContacts] = useState(false);
-    let [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [selectedContacts, setSelectedContacts] = useState([]);
+  const [visible, setVisible] = React.useState(false);
+
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
+  const containerStyle = {backgroundColor: 'white', padding: 20};
+
+  const addContact = async () => {
+    try {
+      const response = await axios.get('http://192.168.1.109:3001/api/clients');
+      const data = response.data || [];
+      console.log(data, "clients data res",data.status === "success");
   
-    useEffect(() => {
-      if (Platform.OS === 'android') {
-        PermissionsAndroid.request(
+      if (data.status === "success") {
+        console.log('clients success called');
+        setSelectedContacts(data.clients);
+      }
+    } catch (error) {
+      console.error('Error while posting contacts:', error);
+    }
+  };
+  const loadContacts = async () => {
+    try {
+      const response = await axios.get('http://192.168.1.109:3001/api/contacts');
+      console.log('Raw response:', response.data);
+      const contacts = response.data.contacts || [];
+      contacts.sort((a, b) => a.givenName.toLowerCase() > b.givenName.toLowerCase());
+      setContacts(contacts.slice(0, 100));
+    } catch (error) {
+      console.error('Error while fetching contacts:', error);
+    }
+  };
+
+  const postContacts = async (newContacts) => {
+    try {
+      const response = await axios.post('http://192.168.1.109:3001/api/contacts', {
+        contacts: newContacts,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log(response.data, 'contacts data req',response.data.status);
+      if(response?.data.status == "success"){
+        console.log("success called")
+        addContact(); 
+      }
+     
+    } catch (error) {
+      console.error('Error while posting contacts:', error);
+    }
+  };
+  const fetchData = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
             title: 'Contacts',
             message: 'This app would like to view your contacts.',
-          }).then(() => {
-            loadContacts();
-          }
+          },
         );
-      } else {
-        loadContacts();
-      }
-    }, []);
-  
-    const loadContacts = () => {
-      Contacts.getAll()
-    .then(contacts => {
-      contacts.sort((a, b) => {
-        if (a.givenName && b.givenName) {
+        const contacts = await Contacts.getAll();
+        contacts.sort((a, b) => {
           const nameA = a.givenName.toLowerCase();
           const nameB = b.givenName.toLowerCase();
-          if (nameA < nameB) {
-            return -1;
-          }
-          if (nameA > nameB) {
-            return 1;
-          }
-        }
-        return 0;
-      });
-      setContacts(contacts.slice(0,100));
-    })
-    .catch(error => {
-      console.error('Error while fetching contacts:', error);
-    });
-  
-    
-    };
-  
-    const search = (text) => {
-      const phoneNumberRegex = 
-        /\b[\+]?[(]?[0-9]{2,6}[)]?[-\s\.]?[-\s\/\.0-9]{3,15}\b/m;
-      if (text === '' || text === null) {
-        loadContacts();
-      } else if (phoneNumberRegex.test(text)) {
-        Contacts.getContactsByPhoneNumber(text).then(contacts => {
-          contacts.sort(
-            (a, b) => 
-            a.givenName.toLowerCase() > b.givenName.toLowerCase(),
-          );
-          setContacts(contacts);
+          return nameA.localeCompare(nameB);
         });
-      } else {
-        Contacts.getContactsMatchingString(text).then(contacts => {
-          contacts.sort(
-            (a, b) => 
-            a.givenName.toLowerCase() > b.givenName.toLowerCase(),
-          );
-          setContacts(contacts);
-          console.log('contacts', contacts);
-        });
+        setContacts(contacts.slice(0, 100));
+        await postContacts(contacts.slice(0, 100)); // Initial post with fetched contacts
+          addContact();
+      } catch (error) {
+        console.error('Error while fetching contacts:', error);
       }
-    };
+    } else {
+      try {
+        const contacts = await Contacts.getAll();
+        contacts.sort((a, b) => {
+          const nameA = a.givenName.toLowerCase();
+          const nameB = b.givenName.toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+        setContacts(contacts.slice(0, 100));
+        await postContacts(contacts.slice(0, 100)); // Initial post with fetched contacts
+      } catch (error) {
+        console.error('Error while fetching contacts:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const search = async (text) => {
+    const phoneNumberRegex = /\b[\+]?[(]?[0-9]{2,6}[)]?[-\s\.]?[-\s\/\.0-9]{3,15}\b/m;
+    try {
+      if (text === '' || text === null) {
+        await loadContacts();
+      } else if (phoneNumberRegex.test(text)) {
+        const contacts = await Contacts.getContactsByPhoneNumber(text);
+        contacts.sort((a, b) => a.givenName.toLowerCase() > b.givenName.toLowerCase());
+        setContacts(contacts);
+      } else {
+        const contacts = await Contacts.getContactsMatchingString(text);
+        contacts.sort((a, b) => a.givenName.toLowerCase() > b.givenName.toLowerCase());
+        setContacts(contacts);
+      }
+    } catch (error) {
+      console.error('Error while searching contacts:', error);
+    }
+  };
+
+  const openContact = (contact) => {
+    // Contacts.openExistingContact(contact);
+  };
+
+
+  const handleModalButtonPress = () => {
   
-    const openContact = (contact) => {
-      console.log(JSON.stringify(contact));
-      Contacts.openExistingContact(contact);
-    };
-    const renderPlusIcon = () => {
-      return (
-        <TouchableOpacity
-          style={styles.plusIcon}
-          onPress={() => setShowContacts(true)}
-        >
-          <Text style={styles.plusText}>+</Text>
-        </TouchableOpacity>
-      );
-    };
+    console.log('Modal button pressed');
+
+  };
+
   return (
     <View style={{ width: '100%', height: '100%' }}>
       {/* Search Input */}
-    
-          <Text >
-            Access Contact List in React Native
-          </Text>
-          {/* <TextInput
-            onChangeText={search}
-            placeholder="Search"
-            style={styles.searchBar}
-          /> */}
-           <Searchbar placeholder="Search" onChangeText={search}/>
-           
-      {/* Tabs */}
-      
+      <Searchbar placeholder="Search" onChangeText={search} />
 
-      {/* Content for each tab */}
-      
+      {/* Tabs */}
       <MaterialTabs
         items={tabs}
         selectedIndex={index}
         onChange={setIndex}
-        // barColor="#2196F3" // You can customize the color
-        // indicatorColor="#FFEB3B" // You can customize the color
       />
+      {/* Content for each tab */}
       {index === 0 && (
         <View>
-          <Text>This is the All Clients tab</Text>
-          {/* Add content related to all clients here */}
+          <FlatList
+            data={contacts}
+            renderItem={(contact) => (
+              <ContactListItem
+                key={contact.item.recordID}
+                item={contact.item}
+                onPress={openContact}
+                onAddContact={addContact}
+              />
+            )}
+            keyExtractor={(item) => item.recordID}
+          />
         </View>
       )}
       {index === 1 && (
         <View>
-          <Text>This is the Team tab</Text>
-          {/* Add content related to team here */}
+          <FlatList
+            data={selectedContacts}
+            renderItem={(contact) => (
+              <ContactListItem
+                key={contact.item.recordID}
+                item={contact.item}
+                onPress={openContact}
+                onAddContact={addContact}
+                isClient={true}
+              />
+            )}
+            keyExtractor={(item) => item.recordID}
+          />
         </View>
       )}
       {index === 2 && (
         <View>
-          <Text>This is the Groups tab</Text>
-          {/* Add content related to groups here */}
+          <Text>This is the Team tab</Text>
         </View>
       )}
-      {showContacts && 
-      <FlatList
-            data={contacts}
-            renderItem={(contact) => {
-              {
-                console.log('contact -> ' + JSON.stringify(contact));
-              }
-              return (
-                <ContactListItem
-                  key={contact.item.recordID}
-                  item={contact.item}
-                  onPress={openContact}
-                />
-              );
-            }}
-            keyExtractor={(item) => item.recordID}
-          />
-}
-{renderPlusIcon()}
+      {index === 3 && (
+        <View>
+          <Text>This is the Groups tab</Text>
+        </View>
+      )}
+      {/* {renderPlusIcon()} */}
+      <Portal>
+        <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
+    {/* Add your content for the modal, e.g., buttons */}
+    <Text>Example Modal.  Click outside this area to dismiss.</Text>
+    <Button
+      mode="contained"
+      onPress={handleModalButtonPress}
+      style={styles.modalButton}
+    >
+      Button 1
+    </Button>
+    <Button
+      mode="contained"
+      onPress={handleModalButtonPress}
+      style={styles.modalButton}
+    >
+      Button 2
+    </Button>
+    {/* Close Button */}
+    <Button
+      mode="contained"
+      onPress={hideModal}
+      style={styles.modalButton}
+    >
+      Close
+    </Button>
+        </Modal>
+      </Portal>
+      <TouchableOpacity
+      style={styles.plusIcon}
+      onPress={showModal}
+    >
+      <Text style={styles.plusText}>+</Text>
+    </TouchableOpacity>
     </View>
   );
 };
@@ -172,20 +238,6 @@ const ClientsComponent = () => {
 export default ClientsComponent;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: 'relative', // Make the container relative to position its children
-    height:'100%'
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-  },
-  headerText: {
-    fontSize: 18,
-  },
   plusIcon: {
     backgroundColor: '#4CAF50',
     borderRadius: 25,
@@ -201,5 +253,26 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 30,
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%', // Adjust the width as needed
+  },
+  modalText: {
+    fontSize: 20,
+    marginBottom: 10,
+    color: 'black', // Text color
+  },
+  modalButton: {
+    marginTop: 10,
+    width: '100%', // Adjust the width as needed
   },
 });
