@@ -9,13 +9,13 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import AccountComponent from './Components/Screens/Account/AccountScreen';
 import ActivitiesComponent from './Components/Screens/ActivitiesScreen';
-import ClientsComponent from './Components/Screens/Clients/ClientsScreen';
+import LeadsComponent from './Components/Screens/Lead/LeadsScreen';
 import ContentComponent from './Components/Screens/ContentScreen';
 import FollowUpsComponent from './Components/Screens/FollowUpsScreen';
-import ClientDetailsStackScreen from './Components/Screens/Clients/clientDetails';
-import ClientEditStackScreen from './Components/Screens/Clients/editDetails';
+import LeadsDetailsStackScreen from './Components/Screens/Lead/leadDetails';
+import LeadsEditStackScreen from './Components/Screens/Lead/editDetails';
 import messaging from '@react-native-firebase/messaging';
-import ClientAddStackScreen from './Components/Screens/Clients/clientAddDetails';
+import LeadsAddStackScreen from './Components/Screens/Lead/leadAddDetails';
 
 import { PaperProvider } from 'react-native-paper';
 const Tab = createBottomTabNavigator();
@@ -48,8 +48,8 @@ function TabNavigator() {
   return (
     <Tab.Navigator>
       <Tab.Screen
-        name="Clients"
-        component={ClientsComponent}
+        name="Leads"
+        component={LeadsComponent}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Icon name="users" size={size} color={color} />
@@ -111,18 +111,18 @@ function App() {
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="StackClientDetails"
-            component={ClientDetailsStackScreen}
+            name="StackLeadDetails"
+            component={LeadsDetailsStackScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="StackClientEdit"
-            component={ClientEditStackScreen}
+            name="StackLeadEdit"
+            component={LeadsEditStackScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="StackClientAdd"
-            component={ClientAddStackScreen}
+            name="StackLeadAdd"
+            component={LeadsAddStackScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

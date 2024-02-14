@@ -6,10 +6,9 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
 import React,{useState,useEffect} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
-import uuid from 'react-native-uuid';
 
-const ClientAddStackScreen = ({ navigation,route }) => {
-  const [clientName, setClientName] = useState('');
+const LeadsEditStackScreen = ({ navigation,route }) => {
+  const [leadName, setLeadName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [email, setEmail] = useState('');
@@ -17,54 +16,56 @@ const ClientAddStackScreen = ({ navigation,route }) => {
   const handleGoBack = () => {
     navigation.goBack();
   };
-  const postClients = async () => {
-    try {
-      let clientData={
-        recordID: uuid.v1(),
-        firstName:clientName.split(' ')[0],
-        lastName:clientName.split(' ')[1],
-        phoneNumber:mobileNumber,
-        whatsappNumber:whatsappNumber?? mobileNumber,
-        emailId:email,
-        notes:notes
-      }
-      const response = await axios.post('http://192.168.1.109:3001/api/clients', {
-        clients: [clientData],
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      const data = response.data;
-      if(data.status === "success"){
-        navigation.navigate('Clients',{refresh:true});
-        console.log(data, 'clients data res from contact');
-      }
- 
-    } catch (error) {
-      console.error('Error while posting contacts:', error);
-    }
-  };
+useEffect(()=>{
+  const{firstName,lastName,phoneNumber,email,notes}=route?.params.lead;
+console.log(route?.params.lead,"edit params lead")
+setLeadName(firstName+' '+lastName);
+setMobileNumber(phoneNumber);
+setWhatsappNumber(phoneNumber);
+setEmail(email);
+setNotes(notes);
+
+},[route?.params.lead])
 const handleSaveChanges = () => {
   // Implement logic to save changes
-  console.log("Saving changes:", { clientName, mobileNumber, whatsappNumber, email, notes });
-  postClients();
-}
+  console.log("Saving changes:", { leadName, mobileNumber, whatsappNumber, email, notes });
+  const leadData={
+    recordID: route?.params.lead.recordID,
+    firstName:leadName.split(' ')[0],
+    lastName:leadName.split(' ')[1],
+    phoneNumber:mobileNumber,
+    whatsappNumber:whatsappNumber?? mobileNumber,
+    emailId:email,
+    notes:notes
+  }
+  axios.put(`http://192.168.1.109:3001/api/leads/${leadData.recordID}`, { lead: leadData })
+  .then((response) => {
+    console.log(response.data,"edit api");
+    if(response.data.status ==="success"){
+      route?.params.onAddContact();
+    }
+    // Handle success
+    navigation.navigate('Leads');
+  })
+  .catch((error) => {
+    console.error('Error while editing contact:', error);
+    // Handle error
+  });
+};
   return (
     <View style={styles.container}>
       {/* Add your screen content here */}
       <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
         <Icon name="arrow-left" size={20} color="#fff" />
       </TouchableOpacity>
-      <Text style={styles.text}>Edit Client Information</Text>
+      <Text style={styles.text}>Edit lead Information</Text>
 
-      {/* Client Name Input */}
+      {/* lead Name Input */}
       <TextInput
         style={styles.input}
-        placeholder="Client Name"
-        value={clientName}
-        onChangeText={(text) => setClientName(text)}
+        placeholder="lead Name"
+        value={leadName}
+        onChangeText={(text) => setLeadName(text)}
       />
 
       {/* Mobile Number Input */}
@@ -149,6 +150,5 @@ const styles = StyleSheet.create({
   },
 });
 
-const Stack = createNativeStackNavigator();
 
-export default ClientAddStackScreen;
+export default LeadsEditStackScreen;

@@ -1,4 +1,4 @@
-// ClientsComponent.js
+// LeadsComponent.js
 import React, { useState, useEffect } from 'react';
 import { Searchbar,Modal, Portal, Text, Button, PaperProvider } from 'react-native-paper';
 import MaterialTabs from 'react-native-material-tabs';
@@ -16,7 +16,7 @@ import Contacts from 'react-native-contacts';
 import { NavigationContainer,useNavigation } from '@react-navigation/native';
 
 
-const ClientsComponent = ({route}) => {
+const LeadsComponent = ({route}) => {
   const tabs = ['Contacts', 'Leads', 'Clients', 'Lost'];
   const [index, setIndex] = React.useState(0);
   const [contacts, setContacts] = useState([]);
@@ -34,13 +34,13 @@ const ClientsComponent = ({route}) => {
 
   const addContact = async () => {
     try {
-      const response = await axios.get('http://192.168.1.109:3001/api/clients');
+      const response = await axios.get('http://192.168.1.109:3001/api/leads');
       const data = response.data || [];
-      console.log(data, "clients data res",data.status === "success");
+      console.log(data, "Leads data res",data.status === "success");
   
       if (data.status === "success") {
-        console.log('clients success called');
-        setSelectedContacts(data.clients);
+        console.log('Leads success called');
+        setSelectedContacts(data.leads);
       }
     } catch (error) {
       console.error('Error while posting contacts:', error);
@@ -143,7 +143,7 @@ const ClientsComponent = ({route}) => {
 
   const navigation = useNavigation();
   const handleModalButtonPress = () => {
-    navigation.navigate('StackClientAdd');
+    navigation.navigate('StackLeadAdd');
     hideModal();
     console.log('Modal button pressed');
 
@@ -187,7 +187,7 @@ const ClientsComponent = ({route}) => {
                 item={contact.item}
                 onPress={openContact}
                 onAddContact={addContact}
-                isClient={true}
+                isLead={true}
               />
             )}
             keyExtractor={(item) => item.recordID}
@@ -220,7 +220,7 @@ const ClientsComponent = ({route}) => {
       onPress={handleModalButtonPress}
       style={styles.modalButton}
     >
-      Enter a New Client
+      Enter a New Lead
     </Button>
     {/* Close Button */}
     <Button
@@ -242,7 +242,7 @@ const ClientsComponent = ({route}) => {
   );
 };
 
-export default ClientsComponent;
+export default LeadsComponent;
 
 const styles = StyleSheet.create({
   plusIcon: {

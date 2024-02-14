@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 let mockContacts = [];
-let mockClients = [];
+let mockLeads = [];
 // Endpoint to get contacts
 app.get('/api/contacts', (req, res) => {
   res.json({ contacts: mockContacts,status:"success"});
@@ -24,14 +24,14 @@ app.post('/api/contacts', (req, res) => {
       const newContacts = req.body.contacts || [];
   console.log(newContacts,"newContacts post")
       newContacts.forEach((newContact) => {
-        const existingClientsIndex = mockContacts.findIndex(
+        const existingLeadsIndex = mockContacts.findIndex(
           (contact) => contact.recordID === newContact.recordID
         );
   
-        if (existingClientsIndex === -1) {
+        if (existingLeadsIndex === -1) {
           mockContacts.push(newContact);
         } else {
-          mockContacts[existingClientsIndex] = newContact;
+          mockContacts[existingLeadsIndex] = newContact;
         }
       });
   
@@ -43,84 +43,84 @@ app.post('/api/contacts', (req, res) => {
   });
   
 
-app.get('/api/clients', (req, res) => {
-  console.log(mockClients,"mockclients")
-  res.json({ clients: mockClients ,status:"success"});
+app.get('/api/leads', (req, res) => {
+  console.log(mockLeads,"mockLeads")
+  res.json({ leads: mockLeads ,status:"success"});
 });
-app.post('/api/clients', (req, res) => {
-  console.log(req,"req clients")
+app.post('/api/leads', (req, res) => {
+  console.log(req,"req leads")
   try{
-  let newClients = req.body.clients || [];
+  let newLeads = req.body.leads || [];
 
-  // If newClients is a single object, convert it to an array
-  if (!Array.isArray(newClients)) {
-    newClients = [newClients];
+  // If newLeads is a single object, convert it to an array
+  if (!Array.isArray(newLeads)) {
+    newLeads = [newLeads];
   }
 
-  newClients.forEach((newClient) => {
-    // Check if the client already exists in the mockClients array
-    const existingClientIndex = mockClients.findIndex(
-      (client) => client.recordID === newClient.recordID
+  newLeads.forEach((newLead) => {
+    // Check if the Lead already exists in the mockLeads array
+    const existingLeadIndex = mockLeads.findIndex(
+      (lead) => lead.recordID === newLead.recordID
     );
 
-    if (existingClientIndex === -1) {
-      // If not, add the new client to the array
-      mockClients.push(newClient);
+    if (existingLeadIndex === -1) {
+      // If not, add the new Lead to the array
+      mockLeads.push(newLead);
     } else {
-      // If it exists, update the existing client
-      mockClients[existingClientIndex] = newClient;
+      // If it exists, update the existing Lead
+      mockLeads[existingLeadIndex] = newLead;
     }
   });
 
-  res.json({ message: 'Clients successfully updated',status:"success" });;
+  res.json({ message: 'Leads successfully updated',status:"success" });;
 } catch (error) {
-  console.error('Error handling /api/clients:', error);
+  console.error('Error handling /api/leads:', error);
   res.status(500).json({ error: 'Internal server error' });
 }
 });
 
 
 
-// Edit a client
-app.put('/api/clients/:recordID', (req, res) => {
+// Edit a Lead
+app.put('/api/leads/:recordID', (req, res) => {
   try {
     const recordID = req.params.recordID;
-    const updatedClient = req.body.client;
+    const updatedLead = req.body.lead;
 
-    const existingClientIndex = mockClients.findIndex(
-      (client) => client.recordID === recordID
+    const existingLeadIndex = mockLeads.findIndex(
+      (lead) => lead.recordID === recordID
     );
 
-    if (existingClientIndex !== -1) {
-      mockClients[existingClientIndex] = updatedClient;
-      res.json({ message: 'Client successfully updated', status: 'success' });
+    if (existingLeadIndex !== -1) {
+      mockLeads[existingLeadIndex] = updatedLead;
+      res.json({ message: 'Lead successfully updated', status: 'success' });
     } else {
-      res.status(404).json({ error: 'Client not found', status: 'error' });
+      res.status(404).json({ error: 'Lead not found', status: 'error' });
     }
   } catch (error) {
-    console.error('Error handling /api/clients/:recordID (PUT):', error);
+    console.error('Error handling /api/leads/:recordID (PUT):', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Delete a client
-app.delete('/api/clients/:recordID', (req, res) => {
+// Delete a Lead
+app.delete('/api/leads/:recordID', (req, res) => {
   console.log(req,"delete req")
   try {
     const recordID = req.params.recordID;
 
-    const existingClientIndex = mockClients.findIndex(
-      (client) => client.recordID === recordID
+    const existingLeadIndex = mockLeads.findIndex(
+      (lead) => lead.recordID === recordID
     );
 
-    if (existingClientIndex !== -1) {
-      mockClients.splice(existingClientIndex, 1);
-      res.json({ message: 'Client successfully deleted', status: 'success' });
+    if (existingLeadIndex !== -1) {
+      mockLeads.splice(existingLeadIndex, 1);
+      res.json({ message: 'Lead successfully deleted', status: 'success' });
     } else {
-      res.status(404).json({ error: 'Client not found', status: 'error' });
+      res.status(404).json({ error: 'Lead not found', status: 'error' });
     }
   } catch (error) {
-    console.error('Error handling /api/clients/:recordID (DELETE):', error);
+    console.error('Error handling /api/leads/:recordID (DELETE):', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

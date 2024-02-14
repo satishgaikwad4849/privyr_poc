@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const ClientStackScreenComponent = ({ navigation }) => {
+const LeadsStackScreenComponent = ({ navigation }) => {
   const handleGoBack = () => {
     navigation.goBack();
   };
@@ -46,12 +46,12 @@ const styles = StyleSheet.create({
 const Stack = createNativeStackNavigator();
 
 // Define the stack navigator
-const ClientDetailsStackScreen = () => {
+const LeadDetailsStackScreen = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
         name="StackScreenName"
-        component={ClientStackScreenComponent}
+        component={LeadsStackScreenComponent}
         options={{ headerShown: false }}
       />
       {/* Add more screens to the stack if needed */}
@@ -59,4 +59,4 @@ const ClientDetailsStackScreen = () => {
   );
 };
 
-export default ClientDetailsStackScreen;
+export default LeadDetailsStackScreen;

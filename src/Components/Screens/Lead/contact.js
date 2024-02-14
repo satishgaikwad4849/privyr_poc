@@ -25,38 +25,38 @@ const ContactListItem = (props) => {
     return false;
   };
   const navigation = useNavigation();
-  const { item, onPress, onAddContact,isClient=false } = props;
+  const { item, onPress, onAddContact,isLead=false } = props;
   
-  // const postClients = (newClient) => {
-  //   fetch('http://192.168.1.109:3001/api/clients', {
+  // const postLeads = (newLead) => {
+  //   fetch('http://192.168.1.109:3001/api/Leads', {
   //     method: 'POST',
   //     headers: {
   //       'Content-Type': 'application/json',
   //     },
-  //     body: JSON.stringify({ clients: [newClient] }), // Send the new contact in an array
+  //     body: JSON.stringify({ Leads: [newLead] }), // Send the new contact in an array
   //   })
   //     .then((response) => response.json())
   //     .then((data) => {
-  //       console.log(data, "clients data res");
+  //       console.log(data, "Leads data res");
   //     })
   //     .catch((error) => {
   //       console.error('Error while posting contacts:', error);
   //     });
   // };
-  const postClients = async (newClient) => {
+  const postLeads = async (newLead) => {
     try {
-      console.log('Posting client:', newClient);
-      let clientData={
+      console.log('Posting lead:', newLead);
+      let leadData={
         recordID: uuid.v1(),
-        firstName:newClient.givenName,
-        lastName:newClient.familyName,
-        phoneNumber:newClient?.phoneNumbers[0]?.number,
-        whatsappNumber:newClient?.phoneNumbers[0]?.number,
+        firstName:newLead.givenName,
+        lastName:newLead.familyName,
+        phoneNumber:newLead?.phoneNumbers[0]?.number,
+        whatsappNumber:newLead?.phoneNumbers[0]?.number,
         emailId:"",
         notes:""
       }
-      const response = await axios.post('http://192.168.1.109:3001/api/clients', {
-        clients: [clientData],
+      const response = await axios.post('http://192.168.1.109:3001/api/leads', {
+        leads: [leadData],
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ const ContactListItem = (props) => {
       const data = response.data;
       if(data.status === "success"){
           onAddContact();
-        console.log(data, 'clients data res from contact');
+        console.log(data, 'Leads data res from contact');
       }
  
     } catch (error) {
@@ -76,24 +76,24 @@ const ContactListItem = (props) => {
   
   
 
-  const showClientDetails=()=>{
-    if (isClient) {
-      navigation.navigate('StackClientDetails');
+  const showLeadsDetails=()=>{
+    if (isLead) {
+      navigation.navigate('StackLeadDetails');
     } else {
-      onPress(item); // Call onPress only if isClient is false
+      onPress(item); // Call onPress only if isLead is false
     }
   }
   const handleAddContact = (item_,item) => {
     // Call the onAddContact function with the contact item
-    console.log('client itemmm',item_,"item_----",item)
+    console.log('lead itemmm',item_,"item_----",item)
     // onAddContact(item);
-    postClients(item);
+    postLeads(item);
     // onPress(item_)
   };
  
   const handleEditContact = (item_,item) => {
     console.log("Edit contact:", item);
-    navigation.navigate('StackClientEdit', { client: item , onAddContact:onAddContact});
+    navigation.navigate('StackLeadEdit', { lead: item , onAddContact:onAddContact});
     // For API request, you can use the following code
 
   };
@@ -101,7 +101,7 @@ const ContactListItem = (props) => {
   const handleDeleteContact = (item_,item) => {
     console.log("Delete contact:", item);
     // For API request, you can use the following code
-    axios.delete(`http://192.168.1.109:3001/api/clients/${item.recordID}`)
+    axios.delete(`http://192.168.1.109:3001/api/Leads/${item.recordID}`)
       .then((response) => {
         if(response.data.status === "success"){
           onAddContact();
@@ -117,7 +117,7 @@ const ContactListItem = (props) => {
   // console.log("item contatcs",props,"props")
   return (
     <View>
-      <TouchableOpacity onPress={showClientDetails}>
+      <TouchableOpacity onPress={showLeadsDetails}>
         <View style={styles.itemContainer}>
           <View style={styles.leftElementContainer}>
             <Avatar
@@ -137,14 +137,14 @@ const ContactListItem = (props) => {
               <Text
                 style={
                   styles.titleStyle
-                }>{!isClient?`${item?.givenName} ${item?.familyName}`:`${item?.firstName} ${item?.lastName}`}</Text>
+                }>{!isLead?`${item?.givenName} ${item?.familyName}`:`${item?.firstName} ${item?.lastName}`}</Text>
                   <Text
                 style={
                   styles.titleStyle
-                }>{!isClient?`${item?.phoneNumbers[0]?.number}`:`${item.phoneNumber}`}</Text>
+                }>{!isLead?`${item?.phoneNumbers[0]?.number}`:`${item.phoneNumber}`}</Text>
             </View>
             <View style={styles.buttonContainer}>
-              {!isClient ? (
+              {!isLead ? (
                 <Icon
                   name="plus"
                   size={20}
