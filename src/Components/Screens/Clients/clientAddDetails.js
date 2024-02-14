@@ -6,8 +6,9 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
 import React,{useState,useEffect} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import uuid from 'react-native-uuid';
 
-const ClientEditStackScreen = ({ navigation,route }) => {
+const ClientAddStackScreen = ({ navigation,route }) => {
   const [clientName, setClientName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
@@ -16,42 +17,40 @@ const ClientEditStackScreen = ({ navigation,route }) => {
   const handleGoBack = () => {
     navigation.goBack();
   };
-useEffect(()=>{
-  const{firstName,lastName,phoneNumber,email,notes}=route?.params.client;
-console.log(route?.params.client,"edit params client")
-setClientName(firstName+' '+lastName);
-setMobileNumber(phoneNumber);
-setWhatsappNumber(phoneNumber);
-setEmail(email);
-setNotes(notes);
-
-},[route?.params.client])
+  const postClients = async () => {
+    try {
+      let clientData={
+        recordID: uuid.v1(),
+        firstName:clientName.split(' ')[0],
+        lastName:clientName.split(' ')[1],
+        phoneNumber:mobileNumber,
+        whatsappNumber:whatsappNumber?? mobileNumber,
+        emailId:email,
+        notes:notes
+      }
+      const response = await axios.post('http://192.168.1.109:3001/api/clients', {
+        clients: [clientData],
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      const data = response.data;
+      if(data.status === "success"){
+        navigation.navigate('Clients',{refresh:true});
+        console.log(data, 'clients data res from contact');
+      }
+ 
+    } catch (error) {
+      console.error('Error while posting contacts:', error);
+    }
+  };
 const handleSaveChanges = () => {
   // Implement logic to save changes
   console.log("Saving changes:", { clientName, mobileNumber, whatsappNumber, email, notes });
-  const clientData={
-    recordID: route?.params.client.recordID,
-    firstName:clientName.split(' ')[0],
-    lastName:clientName.split(' ')[1],
-    phoneNumber:mobileNumber,
-    whatsappNumber:whatsappNumber?? mobileNumber,
-    emailId:email,
-    notes:notes
-  }
-  axios.put(`http://192.168.1.109:3001/api/clients/${clientData.recordID}`, { client: clientData })
-  .then((response) => {
-    console.log(response.data,"edit api");
-    if(response.data.status ==="success"){
-      route?.params.onAddContact();
-    }
-    // Handle success
-    navigation.navigate('Clients');
-  })
-  .catch((error) => {
-    console.error('Error while editing contact:', error);
-    // Handle error
-  });
-};
+  postClients();
+}
   return (
     <View style={styles.container}>
       {/* Add your screen content here */}
@@ -150,5 +149,6 @@ const styles = StyleSheet.create({
   },
 });
 
+const Stack = createNativeStackNavigator();
 
-export default ClientEditStackScreen;
+export default ClientAddStackScreen;

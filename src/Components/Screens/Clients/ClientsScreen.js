@@ -13,14 +13,21 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import Contacts from 'react-native-contacts';
+import { NavigationContainer,useNavigation } from '@react-navigation/native';
 
-const ClientsComponent = () => {
-  const tabs = ['All Contacts', 'All Clients', 'Team', 'Groups'];
+
+const ClientsComponent = ({route}) => {
+  const tabs = ['Contacts', 'Leads', 'Clients', 'Lost'];
   const [index, setIndex] = React.useState(0);
   const [contacts, setContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [visible, setVisible] = React.useState(false);
 
+  useEffect(()=>{
+    if(route?.params?.refresh){
+      addContact();
+    }
+  },[route?.params?.refresh])
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const containerStyle = {backgroundColor: 'white', padding: 20};
@@ -134,9 +141,10 @@ const ClientsComponent = () => {
     // Contacts.openExistingContact(contact);
   };
 
-
+  const navigation = useNavigation();
   const handleModalButtonPress = () => {
-  
+    navigation.navigate('StackClientAdd');
+    hideModal();
     console.log('Modal button pressed');
 
   };
@@ -200,20 +208,19 @@ const ClientsComponent = () => {
       <Portal>
         <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
     {/* Add your content for the modal, e.g., buttons */}
-    <Text>Example Modal.  Click outside this area to dismiss.</Text>
     <Button
       mode="contained"
       onPress={handleModalButtonPress}
       style={styles.modalButton}
     >
-      Button 1
+      Quick Add & Send Message
     </Button>
     <Button
       mode="contained"
       onPress={handleModalButtonPress}
       style={styles.modalButton}
     >
-      Button 2
+      Enter a New Client
     </Button>
     {/* Close Button */}
     <Button

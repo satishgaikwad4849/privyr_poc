@@ -1,6 +1,6 @@
 // ... (other imports)
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
@@ -13,12 +13,38 @@ import ClientsComponent from './Components/Screens/Clients/ClientsScreen';
 import ContentComponent from './Components/Screens/ContentScreen';
 import FollowUpsComponent from './Components/Screens/FollowUpsScreen';
 import ClientDetailsStackScreen from './Components/Screens/Clients/clientDetails';
-import ClientEditStackScreen from './Components/Screens/Clients/editDetails'
+import ClientEditStackScreen from './Components/Screens/Clients/editDetails';
+import messaging from '@react-native-firebase/messaging';
+import ClientAddStackScreen from './Components/Screens/Clients/clientAddDetails';
+
 import { PaperProvider } from 'react-native-paper';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 function TabNavigator() {
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
+
+
+  const getFirebaseToken = async () => {
+    const firebaseToken = await messaging().getToken();
+    console.log(firebaseToken, "firebase tokeeen")
+  }
+
+
+  useEffect(() => {
+    requestUserPermission();
+    getFirebaseToken();
+  })
+
   return (
     <Tab.Navigator>
       <Tab.Screen
@@ -77,25 +103,30 @@ function TabNavigator() {
 function App() {
   return (
     <PaperProvider>
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="TabNavigator"
-          component={TabNavigator}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="StackClientDetails"
-          component={ClientDetailsStackScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="StackClientEdit"
-          component={ClientEditStackScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="TabNavigator"
+            component={TabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StackClientDetails"
+            component={ClientDetailsStackScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StackClientEdit"
+            component={ClientEditStackScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StackClientAdd"
+            component={ClientAddStackScreen}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
     </PaperProvider>
   );
 }

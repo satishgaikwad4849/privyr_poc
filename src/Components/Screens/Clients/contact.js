@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import Avatar from './avatar';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
+import uuid from 'react-native-uuid';
 
 const getAvatarInitials = (textString) => {
   if (!textString) return '';
@@ -45,8 +46,17 @@ const ContactListItem = (props) => {
   const postClients = async (newClient) => {
     try {
       console.log('Posting client:', newClient);
+      let clientData={
+        recordID: uuid.v1(),
+        firstName:newClient.givenName,
+        lastName:newClient.familyName,
+        phoneNumber:newClient?.phoneNumbers[0]?.number,
+        whatsappNumber:newClient?.phoneNumbers[0]?.number,
+        emailId:"",
+        notes:""
+      }
       const response = await axios.post('http://192.168.1.109:3001/api/clients', {
-        clients: [newClient],
+        clients: [clientData],
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -83,17 +93,9 @@ const ContactListItem = (props) => {
  
   const handleEditContact = (item_,item) => {
     console.log("Edit contact:", item);
+    navigation.navigate('StackClientEdit', { client: item , onAddContact:onAddContact});
     // For API request, you can use the following code
-    axios.put(`http://192.168.1.109:3001/api/clients/${item.recordID}`, { client: item })
-      .then((response) => {
-        console.log(response.data,"edit api");
-        // Handle success
-        navigation.navigate('StackClientEdit', { client: item });
-      })
-      .catch((error) => {
-        console.error('Error while editing contact:', error);
-        // Handle error
-      });
+
   };
 
   const handleDeleteContact = (item_,item) => {
@@ -135,11 +137,11 @@ const ContactListItem = (props) => {
               <Text
                 style={
                   styles.titleStyle
-                }>{`${item?.givenName} ${item?.familyName}`}</Text>
+                }>{!isClient?`${item?.givenName} ${item?.familyName}`:`${item?.firstName} ${item?.lastName}`}</Text>
                   <Text
                 style={
                   styles.titleStyle
-                }>{`${item?.phoneNumbers[0]?.number}`}</Text>
+                }>{!isClient?`${item?.phoneNumbers[0]?.number}`:`${item.phoneNumber}`}</Text>
             </View>
             <View style={styles.buttonContainer}>
               {!isClient ? (
