@@ -7,9 +7,10 @@ import axios from 'axios';
 import React,{useState,useEffect} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import uuid from 'react-native-uuid';
+import Api from './clientApi';
 
-const LeadsAddStackScreen = ({ navigation,route }) => {
-  const [leadName, setLeadName] = useState('');
+const ClientsAddStackScreen = ({ navigation,route }) => {
+  const [clientName, setClientName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [email, setEmail] = useState('');
@@ -17,29 +18,12 @@ const LeadsAddStackScreen = ({ navigation,route }) => {
   const handleGoBack = () => {
     navigation.goBack();
   };
-  const postLeads = async () => {
-    try {
-      let LeadData={
-        recordID: uuid.v1(),
-        givenName:leadName.split(' ')[0],
-        familyName:leadName.split(' ')[1],
-        phoneNumber:mobileNumber,
-        whatsappNumber:whatsappNumber?? mobileNumber,
-        emailId:email,
-        notes:notes
-      }
-      const response = await axios.post('http://192.168.1.109:3001/api/leads', {
-        leads: [LeadData],
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      const data = response.data;
-      if(data.status === "success"){
-        navigation.navigate('Leads',{index:1});
-        console.log(data, 'Leads data res from contact');
+  const createClient = async () => {
+    try{
+  const clientResult = await Api.postClients(clientName, mobileNumber, whatsappNumber, email, notes);
+  console.log(clientResult,"clientResultttt")
+      if(clientResult.status === "success"){
+        navigation.navigate('Leads',{index:2});
       }
  
     } catch (error) {
@@ -48,8 +32,8 @@ const LeadsAddStackScreen = ({ navigation,route }) => {
   };
 const handleSaveChanges = () => {
   // Implement logic to save changes
-  console.log("Saving changes:", { leadName, mobileNumber, whatsappNumber, email, notes });
-  postLeads();
+  console.log("Saving changes:", { clientName, mobileNumber, whatsappNumber, email, notes });
+  createClient();
 }
   return (
     <View style={styles.container}>
@@ -57,14 +41,14 @@ const handleSaveChanges = () => {
       <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
         <Icon name="arrow-left" size={20} color="#fff" />
       </TouchableOpacity>
-      <Text style={styles.text}>Edit Lead Information</Text>
+      <Text style={styles.text}>Add client Information</Text>
 
-      {/* Lead Name Input */}
+      {/* client Name Input */}
       <TextInput
         style={styles.input}
-        placeholder="Lead Name"
-        value={leadName}
-        onChangeText={(text) => setLeadName(text)}
+        placeholder="client Name"
+        value={clientName}
+        onChangeText={(text) => setClientName(text)}
       />
 
       {/* Mobile Number Input */}
@@ -151,4 +135,4 @@ const styles = StyleSheet.create({
 
 const Stack = createNativeStackNavigator();
 
-export default LeadsAddStackScreen;
+export default ClientsAddStackScreen;

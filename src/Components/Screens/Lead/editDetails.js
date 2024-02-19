@@ -13,44 +13,64 @@ const LeadsEditStackScreen = ({ navigation,route }) => {
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
+  const[recordId,setRecordId]=useState('')
   const handleGoBack = () => {
     navigation.goBack();
   };
 useEffect(()=>{
-  const{firstName,lastName,phoneNumber,email,notes}=route?.params.lead;
-console.log(route?.params.lead,"edit params lead")
-setLeadName(firstName+' '+lastName);
+  const{givenName,familyName,phoneNumber,email,notes,recordID}=route?.params.lead || route.params.client;
+console.log(route?.params,"edit params lead")
+setRecordId(recordID);
+setLeadName(givenName+' '+familyName);
 setMobileNumber(phoneNumber);
 setWhatsappNumber(phoneNumber);
 setEmail(email);
 setNotes(notes);
 
-},[route?.params.lead])
+},[route?.params])
 const handleSaveChanges = () => {
   // Implement logic to save changes
-  console.log("Saving changes:", { leadName, mobileNumber, whatsappNumber, email, notes });
-  const leadData={
-    recordID: route?.params.lead.recordID,
-    firstName:leadName.split(' ')[0],
-    lastName:leadName.split(' ')[1],
+  console.log("Saving changes:", { leadName, mobileNumber, whatsappNumber, email, notes,recordId });
+  const data={
+    recordID: recordId,
+    givenName:leadName.split(' ')[0],
+    familyName:leadName.split(' ')[1],
     phoneNumber:mobileNumber,
     whatsappNumber:whatsappNumber?? mobileNumber,
     emailId:email,
     notes:notes
   }
-  axios.put(`http://192.168.1.109:3001/api/leads/${leadData.recordID}`, { lead: leadData })
-  .then((response) => {
-    console.log(response.data,"edit api");
-    if(response.data.status ==="success"){
-      route?.params.onAddContact();
-    }
-    // Handle success
-    navigation.navigate('Leads');
-  })
-  .catch((error) => {
-    console.error('Error while editing contact:', error);
-    // Handle error
-  });
+  console.log(route.params,"editttttttttt")
+  if(route.params.lead){
+    axios.put(`http://192.168.1.109:3001/api/leads/${data.recordID}`, { lead: data })
+    .then((response) => {
+      console.log(response.data,"edit api");
+      if(response.data.status ==="success"){
+        route?.params.onAction();
+      }
+      // Handle success
+      navigation.navigate('Leads');
+    })
+    .catch((error) => {
+      console.error('Error while editing lead:', error);
+      // Handle error
+    });
+  }
+if(route.params.client){
+  axios.put(`http://192.168.1.109:3001/api/clients/${data.recordID}`, { client: data })
+    .then((response) => {
+      console.log(response.data,"edit api");
+      if(response.data.status ==="success"){
+        route?.params.onAction();
+      }
+      // Handle success
+      navigation.navigate('Leads');
+    })
+    .catch((error) => {
+      console.error('Error while editing client:', error);
+      // Handle error
+    });
+}
 };
   return (
     <View style={styles.container}>

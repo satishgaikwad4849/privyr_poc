@@ -11,6 +11,7 @@ app.use(bodyParser.json());
 
 let mockContacts = [];
 let mockLeads = [];
+let mockClients = [];
 // Endpoint to get contacts
 app.get('/api/contacts', (req, res) => {
   res.json({ contacts: mockContacts,status:"success"});
@@ -126,6 +127,130 @@ app.delete('/api/leads/:recordID', (req, res) => {
 });
 
 
+app.get('/api/clients', (req, res) => {
+  console.log(mockClients,"mockclients")
+  res.json({ clients: mockClients ,status:"success"});
+});
+app.post('/api/clients', (req, res) => {
+  console.log(req,"req clients")
+  try{
+  let newClients = req.body.clients || [];
+
+  // If newclients is a single object, convert it to an array
+  if (!Array.isArray(newClients)) {
+    newClients = [newClients];
+  }
+
+  newClients.forEach((newClient) => {
+    // Check if the client already exists in the mockclients array
+    const existingClientIndex = mockClients.findIndex(
+      (client) => client.recordID === newClient.recordID
+    );
+
+    if (existingClientIndex === -1) {
+      // If not, add the new client to the array
+      mockClients.push(newClient);
+    } else {
+      // If it exists, update the existing client
+      mockClients[existingClientIndex] = newClient;
+    }
+  });
+
+  res.json({ message: 'clients successfully updated',status:"success" });;
+} catch (error) {
+  console.error('Error handling /api/clients:', error);
+  res.status(500).json({ error: 'Internal server error' });
+}
+});
+
+
+
+// Edit a client
+app.put('/api/clients/:recordID', (req, res) => {
+  try {
+    const recordID = req.params.recordID;
+    const updatedClient = req.body.client;
+
+    const existingClientIndex = mockClients.findIndex(
+      (client) => client.recordID === recordID
+    );
+
+    if (existingClientIndex !== -1) {
+      mockClients[existingClientIndex] = updatedClient;
+      res.json({ message: 'client successfully updated', status: 'success' });
+    } else {
+      res.status(404).json({ error: 'client not found', status: 'error' });
+    }
+  } catch (error) {
+    console.error('Error handling /api/clients/:recordID (PUT):', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete a client
+app.delete('/api/clients/:recordID', (req, res) => {
+  console.log(req,"delete req")
+  try {
+    const recordID = req.params.recordID;
+
+    const existingClientIndex = mockClients.findIndex(
+      (client) => client.recordID === recordID
+    );
+
+    if (existingClientIndex !== -1) {
+      mockClients.splice(existingClientIndex, 1);
+      res.json({ message: 'client successfully deleted', status: 'success' });
+    } else {
+      res.status(404).json({ error: 'client not found', status: 'error' });
+    }
+  } catch (error) {
+    console.error('Error handling /api/clients/:recordID (DELETE):', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Mock server is running at http://localhost:${PORT}`);
+});
+
+// Endpoint to search leads
+app.get('/api/search/leads', (req, res) => {
+  try {
+    const searchText = req.query.search || '';
+    const filteredLeads = mockLeads.filter((lead) => {
+      // Filter logic based on your requirements
+      // For example, you can filter by lead name, phone number, etc.
+      return (
+        lead.givenName.toLowerCase().includes(searchText.toLowerCase()) ||
+        lead.familyName.toLowerCase().includes(searchText.toLowerCase()) ||
+        lead.phoneNumber.includes(searchText)
+      );
+    });
+
+    res.json({ leads: filteredLeads, status: "success" });
+  } catch (error) {
+    console.error('Error handling /api/search/leads:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Endpoint to search clients
+app.get('/api/search/clients', (req, res) => {
+  try {
+    const searchText = req.query.search || '';
+    const filteredClients = mockClients.filter((client) => {
+      // Filter logic based on your requirements
+      // For example, you can filter by client name, phone number, etc.
+      return (
+        client.givenName.toLowerCase().includes(searchText.toLowerCase()) ||
+        client.familyName.toLowerCase().includes(searchText.toLowerCase()) ||
+        client.phoneNumber.includes(searchText)
+      );
+    });
+
+    res.json({ clients: filteredClients, status: "success" });
+  } catch (error) {
+    console.error('Error handling /api/search/clients:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });

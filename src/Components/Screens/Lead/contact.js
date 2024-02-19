@@ -21,9 +21,7 @@ const getAvatarInitials = (textString) => {
 };
 
 const ContactListItem = (props) => {
-  const shouldComponentUpdate = () => {
-    return false;
-  };
+
   const navigation = useNavigation();
   const { item, onPress, onAddContact,isLead=false } = props;
   
@@ -101,7 +99,7 @@ const ContactListItem = (props) => {
   const handleDeleteContact = (item_,item) => {
     console.log("Delete contact:", item);
     // For API request, you can use the following code
-    axios.delete(`http://192.168.1.109:3001/api/Leads/${item.recordID}`)
+    axios.delete(`http://192.168.1.109:3001/api/leads/${item.recordID}`)
       .then((response) => {
         if(response.data.status === "success"){
           onAddContact();

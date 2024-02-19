@@ -14,8 +14,11 @@ import ContentComponent from './Components/Screens/ContentScreen';
 import FollowUpsComponent from './Components/Screens/FollowUpsScreen';
 import LeadsDetailsStackScreen from './Components/Screens/Lead/leadDetails';
 import LeadsEditStackScreen from './Components/Screens/Lead/editDetails';
+import EditForm from './commonComponent/editForm';
 import messaging from '@react-native-firebase/messaging';
 import LeadsAddStackScreen from './Components/Screens/Lead/leadAddDetails';
+import ClientAddStackScreen from './Components/Screens/Client/clientAddDetails';
+import ClientDetailsStackScreen from './Components/Screens/Client/clientDetails';
 
 import { PaperProvider } from 'react-native-paper';
 const Tab = createBottomTabNavigator();
@@ -120,9 +123,24 @@ function App() {
             component={LeadsEditStackScreen}
             options={{ headerShown: false }}
           />
+          {/* <Stack.Screen
+            name="StackEdit"
+            component={EditForm}
+            options={{ headerShown: false }}
+          /> */}
           <Stack.Screen
             name="StackLeadAdd"
             component={LeadsAddStackScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StackClientAdd"
+            component={ClientAddStackScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StackClientDetails"
+            component={ClientDetailsStackScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>
