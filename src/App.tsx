@@ -10,7 +10,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import AccountComponent from './Components/Screens/Account/AccountScreen';
 import ActivitiesComponent from './Components/Screens/ActivitiesScreen';
 import LeadsComponent from './Components/Screens/Lead/LeadsScreen';
-import ContentComponent from './Components/Screens/ContentScreen';
+import ContentComponent from './Components/Screens/Content/ContentScreen';
 import FollowUpsComponent from './Components/Screens/FollowUpsScreen';
 import LeadsDetailsStackScreen from './Components/Screens/Lead/leadDetails';
 import LeadsEditStackScreen from './Components/Screens/Lead/editDetails';
@@ -19,7 +19,7 @@ import messaging from '@react-native-firebase/messaging';
 import LeadsAddStackScreen from './Components/Screens/Lead/leadAddDetails';
 import ClientAddStackScreen from './Components/Screens/Client/clientAddDetails';
 import ClientDetailsStackScreen from './Components/Screens/Client/clientDetails';
-
+import ContentDetailsStackScreen from './Components/Screens/Content/contentDetails';
 import { PaperProvider } from 'react-native-paper';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -141,6 +141,11 @@ function App() {
           <Stack.Screen
             name="StackClientDetails"
             component={ClientDetailsStackScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StackContentDetails"
+            component={ContentDetailsStackScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

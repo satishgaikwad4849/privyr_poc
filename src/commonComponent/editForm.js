@@ -11,7 +11,7 @@ const EditForm = () => {
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
-    const { givenName, familyName, phoneNumber, email, notes } = leadInfo;
+    const { givenName, familyName, phoneNumber, email, notes } = route.params.leads;
     setLeadName(`${givenName} ${familyName}`);
     setMobileNumber(phoneNumber);
     setWhatsappNumber(phoneNumber);
