@@ -5,7 +5,7 @@ import { SafeAreaView,View,Text } from 'react-native';
 const ActivitiesComponent = () => {
   
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView>
       <View>
         <Text>
           Activities

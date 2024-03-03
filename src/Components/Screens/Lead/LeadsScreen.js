@@ -28,13 +28,13 @@ const LeadsComponent = ({route}) => {
 
 
   useEffect(()=>{
-    console.log(route?.params?.index,"indexxxxx client==========>")
-    if(route?.params?.index==1){
+    console.log(route?.params?.index,"indexxxxx client==========>",index)
+    if(route?.params?.index && route?.params?.index==1){
       setTimeout(()=>{
         loadLeads();
       },500)
     }
-    if(route?.params?.index==2){
+    if(route?.params?.index && route?.params?.index==2){
       // loadLeads();
       setTimeout(()=>{
         loadClients();

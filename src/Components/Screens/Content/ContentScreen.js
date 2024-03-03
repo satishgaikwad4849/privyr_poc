@@ -3,29 +3,30 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-const ContentComponent = () => {
+const ContentComponent = ({route}) => {
   const navigation = useNavigation();
-
+  console.log(route.params,"route params content")
+  const {givenName} =route.params.item
   const data = [
     {
       id: 1,
       title: "First Message to a New Lead",
-      description: "Hi @clientName, Thank you for your interest in ACME Residences. I’ll be happy to share more details about the project and answer any questions you have. Would you like me to send you the eBrochure? satish gaikwad Demo Company"
+      description: `Hi ,${givenName} Thank you for your interest in ACME Residences. I’ll be happy to share more details about the project and answer any questions you have. Would you like me to send you the eBrochure? satish gaikwad Demo Company`
     },
     {
       id: 2,
       title: "Follow Up - Book Viewing",
-      description: "Hi @clientName, I wanted to follow up and check if you had any questions about ACME Residences, or if I could help to arrange a viewing for you in the coming week. Please let me know if I can assist in any way, thank you! satish gaikwad Demo Company"
+      description: `Hi ${givenName}, I wanted to follow up and check if you had any questions about ACME Residences, or if I could help to arrange a viewing for you in the coming week. Please let me know if I can assist in any way, thank you! Demo Company`
     },
     {
       id: 3,
       title: "Meeting Reminder - Today",
-      description: "Good morning @clientName! 🌞 Looking forward to meeting you at the ACME Residences showflat for your viewing later today! The address is 123 ACME Boulevard, and free parking is available. Please let me know when you arrive, I’ll be there to welcome you at the entrance. See you soon!"
+      description: `Good morning ${givenName}! 🌞 Looking forward to meeting you at the ACME Residences showflat for your viewing later today! The address is 123 ACME Boulevard, and free parking is available. Please let me know when you arrive, I’ll be there to welcome you at the entrance. See you soon!`
     },
     {
       id: 4,
       title: "Example 5: Latest Promotions",
-      description: "Hi @clientName 👋 Hope you’re having a great week! I’m excited to share that the latest promotions for ACME Residences were just released today, and they include a few really nice units that I think you’d be interested in. Shall I send the new discounts and price list?"
+      description: `Hi ${givenName} 👋 Hope you’re having a great week! I’m excited to share that the latest promotions for ACME Residences were just released today, and they include a few really nice units that I think you’d be interested in. Shall I send the new discounts and price list?`
     }
   ];
 
