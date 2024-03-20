@@ -5,8 +5,8 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 
 const ContentComponent = ({route}) => {
   const navigation = useNavigation();
-  console.log(route.params,"route params content")
-  const {givenName} =route.params.item
+  console.log(route?.params,"route params content")
+  const { givenName } = route.params && route.params.item ? route.params.item : { givenName: "Client" };
   const data = [
     {
       id: 1,
@@ -31,13 +31,12 @@ const ContentComponent = ({route}) => {
   ];
 
   const goToDetailsScreen = (item) => {
-    console.log(item,"item")
     navigation.navigate('StackContentDetails', { item });
   };
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => goToDetailsScreen(item)} style={styles.itemContainer}>
-      <View style={styles.itemContent}>{console.log(item,"render item")}
+      <View style={styles.itemContent}>
         <Text style={styles.title}>{item.title}</Text>
         <Text numberOfLines={2} ellipsizeMode="tail" style={styles.description}>{item.description}</Text>
       </View>

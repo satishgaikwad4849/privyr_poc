@@ -1,7 +1,4 @@
-// Import necessary modules
-
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import React from 'react';

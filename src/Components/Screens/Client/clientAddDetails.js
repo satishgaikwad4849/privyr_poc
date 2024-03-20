@@ -1,135 +1,114 @@
-// Import necessary modules
-
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+import { IconButton, TextInput, Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import axios from 'axios';
-import React,{useState,useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
-import uuid from 'react-native-uuid';
-import Api from './clientApi';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import Api from '../../../lib/Api';
 
-const ClientsAddStackScreen = ({ navigation,route }) => {
+const ClientsAddStackScreen = ({ navigation }) => {
   const [clientName, setClientName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
-  const handleGoBack = () => {
-    navigation.goBack();
-  };
+
   const createClient = async () => {
-    try{
-  const clientResult = await Api.postClients(clientName, mobileNumber, whatsappNumber, email, notes);
-  console.log(clientResult,"clientResultttt")
-      if(clientResult.status === "success"){
-        navigation.navigate('Leads',{index:2});
+    try {
+      const clientResult = await Api.postClients(clientName, mobileNumber, whatsappNumber, email, notes);
+      if (clientResult.status === "success") {
+        navigation.navigate('Leads', { index: 2 });
       }
- 
     } catch (error) {
       console.error('Error while posting contacts:', error);
     }
   };
-const handleSaveChanges = () => {
-  // Implement logic to save changes
-  console.log("Saving changes:", { clientName, mobileNumber, whatsappNumber, email, notes });
-  createClient();
-}
+
   return (
-    <View style={styles.container}>
-      {/* Add your screen content here */}
-      <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-        <Icon name="arrow-left" size={20} color="#fff" />
-      </TouchableOpacity>
-      <Text style={styles.text}>Add client Information</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <IconButton icon="arrow-left" color="#fff" onPress={() => navigation.goBack()} style={styles.backButton} />
 
-      {/* client Name Input */}
+      <Text style={styles.title}>Add Client Information</Text>
+
       <TextInput
-        style={styles.input}
-        placeholder="client Name"
+        label="Client Name"
         value={clientName}
-        onChangeText={(text) => setClientName(text)}
+        onChangeText={text => setClientName(text)}
+        style={styles.input}
+        theme={{ colors: { primary: '#007bff' } }}
       />
 
-      {/* Mobile Number Input */}
       <TextInput
-        style={styles.input}
-        placeholder="Mobile Number"
+        label="Mobile Number"
         value={mobileNumber}
-        onChangeText={(text) => setMobileNumber(text)}
+        onChangeText={text => setMobileNumber(text)}
+        style={styles.input}
+        theme={{ colors: { primary: '#007bff' } }}
       />
 
-      {/* Whatsapp Number Input */}
       <TextInput
-        style={styles.input}
-        placeholder="Whatsapp Number"
+        label="Whatsapp Number"
         value={whatsappNumber}
-        onChangeText={(text) => setWhatsappNumber(text)}
+        onChangeText={text => setWhatsappNumber(text)}
+        style={styles.input}
+        theme={{ colors: { primary: '#007bff' } }}
       />
 
-      {/* Email Address Input */}
       <TextInput
-        style={styles.input}
-        placeholder="Email Address"
+        label="Email Address"
         value={email}
-        onChangeText={(text) => setEmail(text)}
-      />
-
-      {/* Notes Input */}
-      <TextInput
+        onChangeText={text => setEmail(text)}
         style={styles.input}
-        placeholder="Notes"
-        value={notes}
-        onChangeText={(text) => setNotes(text)}
-        multiline
+        theme={{ colors: { primary: '#007bff' } }}
       />
 
-      {/* Save Button */}
-      <TouchableOpacity onPress={handleSaveChanges} style={styles.saveButton}>
-        <Text style={{ color: '#fff' }}>Save Changes</Text>
-      </TouchableOpacity>
+      <TextInput
+        label="Notes"
+        value={notes}
+        onChangeText={text => setNotes(text)}
+        multiline
+        style={[styles.input, styles.notesInput]}
+        theme={{ colors: { primary: '#007bff' } }}
+      />
 
-      {/* Back Button */}
-      <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-        <Icon name="arrow-left" size={20} color="#fff" />
-      </TouchableOpacity>
-    </View>
+      <Button mode="contained" onPress={createClient} style={styles.saveButton} labelStyle={styles.saveButtonText}>
+        Save Changes
+      </Button>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexGrow: 1,
+    backgroundColor: '#fff',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
   },
-  text: {
-    fontSize: 20,
+  title: {
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: 'rgb(54, 172, 170)',
+    textAlign: 'center',
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingLeft: 10,
-    width: '80%',
+    marginBottom: 20,
+  },
+  notesInput: {
+    height: 100,
   },
   saveButton: {
-    backgroundColor: '#007bff',
-    padding: 10,
-    borderRadius: 5,
     marginTop: 20,
+    backgroundColor: 'rgb(54, 172, 170)',
+  },
+  saveButtonText: {
+    color: '#fff',
   },
   backButton: {
     position: 'absolute',
     top: 10,
     left: 10,
-    padding: 10,
-    backgroundColor: '#ccc',
-    borderRadius: 5,
+    backgroundColor: 'transparent',
   },
 });
 

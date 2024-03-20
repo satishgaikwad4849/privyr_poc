@@ -1,12 +1,8 @@
-// ... (other imports)
-
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
 import AccountComponent from './Components/Screens/Account/AccountScreen';
 import ActivitiesComponent from './Components/Screens/ActivitiesScreen';
 import LeadsComponent from './Components/Screens/Lead/LeadsScreen';
@@ -14,7 +10,6 @@ import ContentComponent from './Components/Screens/Content/ContentScreen';
 import FollowUpsComponent from './Components/Screens/FollowUpsScreen';
 import LeadsDetailsStackScreen from './Components/Screens/Lead/leadDetails';
 import LeadsEditStackScreen from './Components/Screens/Lead/editDetails';
-import EditForm from './commonComponent/editForm';
 import messaging from '@react-native-firebase/messaging';
 import LeadsAddStackScreen from './Components/Screens/Lead/leadAddDetails';
 import ClientAddStackScreen from './Components/Screens/Client/clientAddDetails';
@@ -123,11 +118,6 @@ function App() {
             component={LeadsEditStackScreen}
             options={{ headerShown: false }}
           />
-          {/* <Stack.Screen
-            name="StackEdit"
-            component={EditForm}
-            options={{ headerShown: false }}
-          /> */}
           <Stack.Screen
             name="StackLeadAdd"
             component={LeadsAddStackScreen}

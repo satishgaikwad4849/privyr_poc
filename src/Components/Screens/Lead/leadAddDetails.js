@@ -1,22 +1,22 @@
-// Import necessary modules
-
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+import { IconButton, TextInput, Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import axios from 'axios';
-import React,{useState,useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import uuid from 'react-native-uuid';
+import Api from '../../../lib/Api';
 
-const LeadsAddStackScreen = ({ navigation,route }) => {
+const LeadsAddStackScreen = ({ navigation }) => {
   const [leadName, setLeadName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
+
   const handleGoBack = () => {
     navigation.goBack();
   };
+
   const postLeads = async () => {
     try {
       let LeadData={
@@ -28,87 +28,74 @@ const LeadsAddStackScreen = ({ navigation,route }) => {
         emailId:email,
         notes:notes
       }
-      const response = await axios.post('http://192.168.1.109:3001/api/leads', {
-        leads: [LeadData],
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      const data = response.data;
-      if(data.status === "success"){
+
+      const postLeadResult = await Api.postLeads(LeadData)
+
+      console.log(postLeadResult,"posttt lead result")
+      if(postLeadResult.status === "success"){
         navigation.navigate('Leads',{index:1});
-        console.log(data, 'Leads data res from contact');
       }
  
     } catch (error) {
       console.error('Error while posting contacts:', error);
     }
   };
-const handleSaveChanges = () => {
-  // Implement logic to save changes
-  console.log("Saving changes:", { leadName, mobileNumber, whatsappNumber, email, notes });
-  postLeads();
-}
+
+  const handleSaveChanges = () => {
+    console.log("Saving changes:", { leadName, mobileNumber, whatsappNumber, email, notes });
+    postLeads();
+  };
+
   return (
     <View style={styles.container}>
-      {/* Add your screen content here */}
-      <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-        <Icon name="arrow-left" size={20} color="#fff" />
-      </TouchableOpacity>
-      <Text style={styles.text}>Edit Lead Information</Text>
+      <IconButton icon="arrow-left" color="#fff" onPress={handleGoBack} style={styles.backButton} />
 
-      {/* Lead Name Input */}
+      <Text style={styles.title}>Add Lead</Text>
+
       <TextInput
-        style={styles.input}
-        placeholder="Lead Name"
+        label="Lead Name"
         value={leadName}
-        onChangeText={(text) => setLeadName(text)}
+        onChangeText={text => setLeadName(text)}
+        style={styles.input}
+        theme={{ colors: { primary: '#007bff' } }}
       />
 
-      {/* Mobile Number Input */}
       <TextInput
-        style={styles.input}
-        placeholder="Mobile Number"
+        label="Mobile Number"
         value={mobileNumber}
-        onChangeText={(text) => setMobileNumber(text)}
+        onChangeText={text => setMobileNumber(text)}
+        style={styles.input}
+        theme={{ colors: { primary: '#007bff' } }}
       />
 
-      {/* Whatsapp Number Input */}
       <TextInput
-        style={styles.input}
-        placeholder="Whatsapp Number"
+        label="Whatsapp Number"
         value={whatsappNumber}
-        onChangeText={(text) => setWhatsappNumber(text)}
+        onChangeText={text => setWhatsappNumber(text)}
+        style={styles.input}
+        theme={{ colors: { primary: '#007bff' } }}
       />
 
-      {/* Email Address Input */}
       <TextInput
-        style={styles.input}
-        placeholder="Email Address"
+        label="Email Address"
         value={email}
-        onChangeText={(text) => setEmail(text)}
-      />
-
-      {/* Notes Input */}
-      <TextInput
+        onChangeText={text => setEmail(text)}
         style={styles.input}
-        placeholder="Notes"
-        value={notes}
-        onChangeText={(text) => setNotes(text)}
-        multiline
+        theme={{ colors: { primary: '#007bff' } }}
       />
 
-      {/* Save Button */}
-      <TouchableOpacity onPress={handleSaveChanges} style={styles.saveButton}>
-        <Text style={{ color: '#fff' }}>Save Changes</Text>
-      </TouchableOpacity>
+      <TextInput
+        label="Notes"
+        value={notes}
+        onChangeText={text => setNotes(text)}
+        multiline
+        style={[styles.input, styles.notesInput]}
+        theme={{ colors: { primary: '#007bff' } }}
+      />
 
-      {/* Back Button */}
-      <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-        <Icon name="arrow-left" size={20} color="#fff" />
-      </TouchableOpacity>
+      <Button mode="contained" onPress={handleSaveChanges} style={styles.saveButton} labelStyle={styles.saveButtonText}>
+        Save
+      </Button>
     </View>
   );
 };
@@ -118,37 +105,38 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
   },
-  text: {
-    fontSize: 20,
+  title: {
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: 'rgb(54, 172, 170)',
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingLeft: 10,
-    width: '80%',
+    width: '100%',
+    marginBottom: 20,
+  },
+  notesInput: {
+    height: 100,
   },
   saveButton: {
-    backgroundColor: '#007bff',
-    padding: 10,
-    borderRadius: 5,
     marginTop: 20,
+    backgroundColor: 'rgb(54, 172, 170)',
+    width: '100%',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   backButton: {
     position: 'absolute',
     top: 10,
     left: 10,
-    padding: 10,
-    backgroundColor: '#ccc',
-    borderRadius: 5,
+    backgroundColor: 'transparent',
   },
 });
-
-const Stack = createNativeStackNavigator();
 
 export default LeadsAddStackScreen;
