@@ -1,6 +1,6 @@
 // LeadsComponent.js
 import React, { useState, useEffect } from 'react';
-import { Searchbar,Modal, Portal, Text, Button, PaperProvider } from 'react-native-paper';
+import { Searchbar, Modal, Portal, Text, Button, PaperProvider } from 'react-native-paper';
 import MaterialTabs from 'react-native-material-tabs';
 
 import {
@@ -18,33 +18,33 @@ import Api from '../../../lib/Api';
 import uuid from 'react-native-uuid';
 import MessageNotification from '../../../commonComponent/notificationMessage';
 
-const LeadsComponent = ({route}) => {
+const LeadsComponent = ({ route }) => {
   const tabs = ['Contacts', 'Leads', 'Clients', 'Lost'];
   const [index, setIndex] = React.useState(0);
   const [contacts, setContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [selectedClients, setSelectedClients] = useState([]);
   const [visible, setVisible] = React.useState(false);
-  const [showMessage,setShowMessage] = useState(false);
-  const [nameOfMessage,setNameOfMessage] = useState("");
+  const [showMessage, setShowMessage] = useState(false);
+  const [nameOfMessage, setNameOfMessage] = useState("");
   const navigation = useNavigation();
 
-  useEffect(()=>{
-    console.log(route?.params?.index,"indexxxxx client==========>",index)
-    if(route?.params?.index && route?.params?.index==1){
-      setTimeout(()=>{
+  useEffect(() => {
+    console.log(route?.params?.index, "indexxxxx client==========>", index)
+    if (route?.params?.index && route?.params?.index == 1) {
+      setTimeout(() => {
         loadLeads();
-      },500)
+      }, 500)
     }
-    if(route?.params?.index && route?.params?.index==2){
+    if (route?.params?.index && route?.params?.index == 2) {
       // loadLeads();
-      setTimeout(()=>{
+      setTimeout(() => {
         loadClients();
-      },500)
-      
+      }, 500)
+
     }
-  },[route?.params])
-  
+  }, [route?.params])
+
   useEffect(() => {
     fetchData()
   }, []);
@@ -56,25 +56,25 @@ const LeadsComponent = ({route}) => {
 
     return () => clearTimeout(timer);
   }, [showMessage]);
-  
+
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
-  const containerStyle = {backgroundColor: 'white', padding: 20};
+  const containerStyle = { backgroundColor: 'white', padding: 20 };
 
   const postLeads = async (newLead) => {
     try {
-      let leadData={
+      let leadData = {
         recordID: uuid.v1(),
-        givenName:newLead.givenName,
-        familyName:newLead.familyName,
-        phoneNumber:newLead?.phoneNumbers[0]?.number||"",
-        whatsappNumber:newLead?.phoneNumbers[0]?.number||"",
-        emailId:"",
-        notes:""
+        givenName: newLead.givenName,
+        familyName: newLead.familyName,
+        phoneNumber: newLead?.phoneNumbers[0]?.number || "",
+        whatsappNumber: newLead?.phoneNumbers[0]?.number || "",
+        emailId: "",
+        notes: ""
       }
       const postLeadResult = await Api.postLeads(leadData)
-      if(postLeadResult.status === "success"){
+      if (postLeadResult.status === "success") {
         loadLeads();
         setShowMessage(true);
         setNameOfMessage("Contact is added as a Lead")
@@ -84,15 +84,15 @@ const LeadsComponent = ({route}) => {
       console.error('Error while posting contacts:', error);
     }
   };
-  
-  
+
+
 
 
   const loadLeads = async () => {
     try {
       const response = await Api.getLeads();
       const leadsData = response.leads || [];
-  
+
       if (response.status === "success") {
         setSelectedContacts(leadsData);
       }
@@ -105,10 +105,10 @@ const LeadsComponent = ({route}) => {
     try {
       const response = await Api.getClients();
       const clientsData = response.clients || [];
-  
+
       if (response.status === "success") {
         setSelectedClients(clientsData);
-      
+
       }
     } catch (error) {
       console.error('Error while getting clients:', error);
@@ -129,7 +129,7 @@ const LeadsComponent = ({route}) => {
   const postContacts = async (newContacts) => {
     try {
       const postContactResult = await Api.postContacts(newContacts)
-      if(postContactResult.status === "success"){
+      if (postContactResult.status === "success") {
         loadLeads();
         // setShowMessage(true);
         // setNameOfMessage("Contact list is added")
@@ -144,9 +144,9 @@ const LeadsComponent = ({route}) => {
       try {
         await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
-            title: 'Contacts',
-            message: 'This app would like to view your contacts.',
-          },
+          title: 'Contacts',
+          message: 'This app would like to view your contacts.',
+        },
         );
         const contacts = await Contacts.getAll();
         contacts.sort((a, b) => {
@@ -155,8 +155,8 @@ const LeadsComponent = ({route}) => {
           return nameA.localeCompare(nameB);
         });
         setContacts(contacts.slice(0, 100));
-        await postContacts(contacts.slice(0, 100)); 
-          loadLeads();
+        await postContacts(contacts.slice(0, 100));
+        loadLeads();
       } catch (error) {
         console.error('Error while fetching contacts:', error);
       }
@@ -175,28 +175,28 @@ const LeadsComponent = ({route}) => {
       }
     }
   };
-  const editLead=(item)=>{
-    navigation.navigate('StackLeadEdit', { lead: item, onAction: loadLeads});
+  const editLead = (item) => {
+    navigation.navigate('StackLeadEdit', { lead: item, onAction: loadLeads });
   }
 
-  const editClient = (item)=>{
-    navigation.navigate('StackLeadEdit', { client: item,onAction:loadClients});
+  const editClient = (item) => {
+    navigation.navigate('StackLeadEdit', { client: item, onAction: loadClients });
   }
 
- const deleteLead= async(item)=>{
-  try {
-    const deleteLeadsResult = await Api.deleteLeads(item.recordID);
-    if (deleteLeadsResult.status === "success") {
-    loadLeads();
-    setShowMessage(true);
-    setNameOfMessage("Lead is Deleted Successfully")
-    }
-  } catch (error) {
-    console.error('Error while deleting contact:', error);
-  };
+  const deleteLead = async (item) => {
+    try {
+      const deleteLeadsResult = await Api.deleteLeads(item.recordID);
+      if (deleteLeadsResult.status === "success") {
+        loadLeads();
+        setShowMessage(true);
+        setNameOfMessage("Lead is Deleted Successfully")
+      }
+    } catch (error) {
+      console.error('Error while deleting contact:', error);
+    };
   }
-  
-  const deleteClient = async(item)=>{
+
+  const deleteClient = async (item) => {
     try {
       const deleteClientsResult = await Api.deleteClients(item.recordID);
       if (deleteClientsResult.status === "success") {
@@ -209,7 +209,7 @@ const LeadsComponent = ({route}) => {
     };
   }
 
- 
+
 
   const search = async (text) => {
     const phoneNumberRegex = /\b[\+]?[(]?[0-9]{2,6}[)]?[-\s\.]?[-\s\/\.0-9]{3,15}\b/m;
@@ -233,7 +233,7 @@ const LeadsComponent = ({route}) => {
   const searchLeads = async (searchText) => {
     try {
       const response = await Api.searchLeads(searchText);
-     
+
       if (response.status === "success") {
         setSelectedContacts(response.leads);
         return response.leads; // Return the filtered leads array
@@ -246,7 +246,7 @@ const LeadsComponent = ({route}) => {
       return []; // Return an empty array in case of an error
     }
   };
-  
+
   const searchClients = async (searchText) => {
     try {
       const response = await Api.searchClients(searchText);
@@ -262,16 +262,16 @@ const LeadsComponent = ({route}) => {
       return []; // Return an empty array in case of an error
     }
   };
-  
-    const handleSearch = (text) => {
-      if (index === 1) {
-        searchLeads(text);
-      } else if (index === 2) {
-        searchClients(text);
-      } else {
-        search(text);
-      }
-    };
+
+  const handleSearch = (text) => {
+    if (index === 1) {
+      searchLeads(text);
+    } else if (index === 2) {
+      searchClients(text);
+    } else {
+      search(text);
+    }
+  };
   const openContact = (contact) => {
     // Contacts.openExistingContact(contact);
   };
@@ -295,23 +295,23 @@ const LeadsComponent = ({route}) => {
       case 0:
         return (
           <View>
-          <FlatList
-            data={contacts}
-            renderItem={(contact) => (
-              <ContactItem
-                key={contact.item.recordID}
-                item={contact.item}
-                onPress={openContact}
-                onAddAction={postLeads}
-                onAction={loadLeads}
-                actionType={'addContact'}
-                listType={'Contacts'}
-              />
-            )}
-            keyExtractor={(item) => item.recordID}
+            <FlatList
+              data={contacts}
+              renderItem={(contact) => (
+                <ContactItem
+                  key={contact.item.recordID}
+                  item={contact.item}
+                  onPress={openContact}
+                  onAddAction={postLeads}
+                  onAction={loadLeads}
+                  actionType={'addContact'}
+                  listType={'Contacts'}
+                />
+              )}
+              keyExtractor={(item) => item.recordID}
 
-          />
-        </View>
+            />
+          </View>
         );
       case 1:
         return (
@@ -326,7 +326,7 @@ const LeadsComponent = ({route}) => {
                 listType={'Leads'}
                 editAction={editLead}
                 deleteAction={deleteLead}
-                // isLead={true}
+              // isLead={true}
               />
             )}
             keyExtractor={(item) => item.recordID}
@@ -364,13 +364,10 @@ const LeadsComponent = ({route}) => {
 
   return (
     <View style={{ width: '100%', height: '100%' }}>
-      {/* Search Input */}
-  
-     
-      <Searchbar placeholder="Search" onChangeText={handleSearch} 
-      onSubmitEditing={({ nativeEvent }) => handleSearch(nativeEvent.text)}/>
-          
-      {/* Tabs */}
+
+      <Searchbar placeholder="Search" onChangeText={handleSearch}
+        onSubmitEditing={({ nativeEvent }) => handleSearch(nativeEvent.text)} />
+
       <MaterialTabs
         items={tabs}
         selectedIndex={index}
@@ -382,44 +379,44 @@ const LeadsComponent = ({route}) => {
 
       <Portal>
         <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
-    {/* Add your content for the modal, e.g., buttons */}
-    <Button
-      mode="contained"
-      onPress={handleModalButtonPress}
-      style={styles.modalButton}
-    >
-      Quick Add & Send Message
-    </Button>
-    <Button
-      mode="contained"
-      onPress={handleModalButtonPress}
-      style={styles.modalButton}
-    >
-      Enter a New Lead
-    </Button>
-    <Button
-      mode="contained"
-      onPress={handleModalButtonPressForClient}
-      style={styles.modalButton}
-    >
-      Enter a New Client
-    </Button>
-    {/* Close Button */}
-    <Button
-      mode="contained"
-      onPress={hideModal}
-      style={styles.modalButton}
-    >
-      Close
-    </Button>
+
+          <Button
+            mode="contained"
+            onPress={handleModalButtonPress}
+            style={styles.modalButton}
+          >
+            Quick Add & Send Message
+          </Button>
+          <Button
+            mode="contained"
+            onPress={handleModalButtonPress}
+            style={styles.modalButton}
+          >
+            Enter a New Lead
+          </Button>
+          <Button
+            mode="contained"
+            onPress={handleModalButtonPressForClient}
+            style={styles.modalButton}
+          >
+            Enter a New Client
+          </Button>
+          {/* Close Button */}
+          <Button
+            mode="contained"
+            onPress={hideModal}
+            style={styles.modalButton}
+          >
+            Close
+          </Button>
         </Modal>
       </Portal>
       <TouchableOpacity
-      style={styles.plusIcon}
-      onPress={showModal}
-    >
-      <Text style={styles.plusText}>+</Text>
-    </TouchableOpacity>
+        style={styles.plusIcon}
+        onPress={showModal}
+      >
+        <Text style={styles.plusText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 };
